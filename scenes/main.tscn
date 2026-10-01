@@ -1,0 +1,13 @@
+[gd_scene format=3 uid="uid://dvrfybahn4iih"]
+
+[ext_resource type="Script" uid="uid://cjgpr5xdpm8bg" path="res://scripts/main.gd" id="1_o5qli"]
+[ext_resource type="Script" uid="uid://c0vx1fmlqmjkp" path="res://scripts/trajectory_preview.gd" id="2_preview"]
+[ext_resource type="PackedScene" path="res://scenes/bow.tscn" id="3_bow"]
+
+[node name="Main" type="Node2D" unique_id=545703342]
+script = ExtResource("1_o5qli")
+
+[node name="TrajectoryPreview" type="Node2D" parent="." unique_id=1038012155]
+script = ExtResource("2_preview")
+
+[node name="Bow" parent="." unique_id=543884262 instance=ExtResource("3_bow")]
