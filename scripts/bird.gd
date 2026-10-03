@@ -15,6 +15,15 @@ const ENTRY_CANDIDATES := 12 # plus il y en a, plus l'entrée est loin de la sor
 const DIRECT_PATH_CHANCE := 0.3 # vol presque en ligne droite
 const MAX_WOBBLE := 40.0 # ondulation perpendiculaire au chemin (px)
 
+# Oiseau immobile
+const STATIC_SCREEN_MARGIN := 100.0 # distance minimale aux bords de l'écran (px)
+const STATIC_HUD_MARGIN := 120.0 # le haut de l'écran est réservé au HUD (px)
+const STATIC_SWAY_ANGLE := PI / 14 # balancement sur lui-même (environ ±13°)
+const STATIC_SWAY_SPEED := 2.5
+const APPEAR_START_SCALE := 0.1 # taille au moment d'apparaître (fraction)
+const APPEAR_POP_SCALE := 1.3 # dépasse un peu sa taille avant de se poser
+const APPEAR_TIME := 0.35
+
 # Animation
 const MAX_TILT := PI / 7
 const FLAP_SPEED := 14.0
@@ -23,6 +32,7 @@ const FLAP_BOB := 3.0
 
 # Zone où l'on ne peut pas poser l'arc
 const NO_SHOOT_RADIUS := 220.0
+const STATIC_NO_SHOOT_RADIUS := 320.0 # plus grand : la cible ne bouge pas, ce serait trop facile
 const ZONE_REVEAL_DISTANCE := 1.6 # la zone apparaît quand la souris s'approche (x rayon)
 const ZONE_COLOR := Color(1, 1, 1, 0.35)
 const ZONE_REFUSED_COLOR := Color(1, 0.25, 0.25, 0.9)
@@ -41,6 +51,9 @@ var time := 0.0
 var dead := false
 var zone_alpha := 0.0
 var refused_flash := 0.0
+var moving := true
+var no_shoot_radius := NO_SHOOT_RADIUS
+var appear_scale := 1.0 # multiplie la taille du sprite pendant l'apparition
 
 
 # avoid : endroit où l'oiseau précédent a disparu (ignoré si has_avoid est faux).
@@ -85,8 +98,32 @@ func fly(screen: Rect2, avoid: Vector2, has_avoid: bool) -> void:
 	global_position = entry
 
 
+# Oiseau immobile : apparaît à un endroit aléatoire de l'écran, loin du précédent.
+func appear(screen: Rect2, avoid: Vector2, has_avoid: bool) -> void:
+	moving = false
+	no_shoot_radius = STATIC_NO_SHOOT_RADIUS
+	var area := Rect2(
+		screen.position + Vector2(STATIC_SCREEN_MARGIN, STATIC_HUD_MARGIN),
+		screen.size - Vector2(STATIC_SCREEN_MARGIN * 2, STATIC_HUD_MARGIN + STATIC_SCREEN_MARGIN))
+	var best := -1.0
+	for i in ENTRY_CANDIDATES:
+		var p := _random_point_in(area)
+		var score := (p.distance_to(avoid) if has_avoid else 1.0) * randf_range(0.8, 1.0)
+		if score > best:
+			best = score
+			global_position = p
+
+	# Apparition : minuscule, grossit vite au-delà de sa taille, puis se pose avec un rebond.
+	appear_scale = APPEAR_START_SCALE
+	var tween := create_tween()
+	tween.tween_property(self, "appear_scale", APPEAR_POP_SCALE, APPEAR_TIME * 0.4) \
+		.set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
+	tween.tween_property(self, "appear_scale", 1.0, APPEAR_TIME * 0.6) \
+		.set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+
+
 func is_in_no_shoot_zone(point: Vector2) -> bool:
-	return global_position.distance_to(point) < NO_SHOOT_RADIUS
+	return global_position.distance_to(point) < no_shoot_radius
 
 
 func refuse_shot() -> void:
@@ -97,6 +134,9 @@ func _process(delta: float) -> void:
 	time += delta
 	_update_zone(delta)
 	if dead:
+		return
+	if not moving:
+		_animate_static()
 		return
 
 	var length := curve.get_baked_length()
@@ -126,13 +166,21 @@ func _animate(motion: Vector2, delta: float) -> void:
 	# Battement d'ailes : petit rebond + étirement.
 	var flap := sin(time * FLAP_SPEED)
 	sprite.position.y = flap * FLAP_BOB
-	sprite.scale = SPRITE_SCALE * Vector2(1.0 + flap * FLAP_SQUASH, 1.0 - flap * FLAP_SQUASH)
+	sprite.scale = SPRITE_SCALE * appear_scale * Vector2(1.0 + flap * FLAP_SQUASH, 1.0 - flap * FLAP_SQUASH)
+
+
+func _animate_static() -> void:
+	# Se balance doucement sur lui-même, en battant des ailes sur place.
+	sprite.rotation = sin(time * STATIC_SWAY_SPEED) * STATIC_SWAY_ANGLE
+	var flap := sin(time * FLAP_SPEED)
+	sprite.position.y = flap * FLAP_BOB
+	sprite.scale = SPRITE_SCALE * appear_scale * Vector2(1.0 + flap * FLAP_SQUASH, 1.0 - flap * FLAP_SQUASH)
 
 
 func _update_zone(delta: float) -> void:
 	# La zone se dévoile quand la souris approche, et clignote en rouge si on clique dedans.
 	var distance := get_global_mouse_position().distance_to(global_position)
-	var reveal := clampf(inverse_lerp(NO_SHOOT_RADIUS * ZONE_REVEAL_DISTANCE, NO_SHOOT_RADIUS, distance), 0.0, 1.0)
+	var reveal := clampf(inverse_lerp(no_shoot_radius * ZONE_REVEAL_DISTANCE, no_shoot_radius, distance), 0.0, 1.0)
 	zone_alpha = move_toward(zone_alpha, reveal, delta * 4.0)
 	refused_flash = move_toward(refused_flash, 0.0, delta * 2.5)
 	queue_redraw()
@@ -144,7 +192,7 @@ func _draw() -> void:
 		return
 	var color := ZONE_COLOR.lerp(ZONE_REFUSED_COLOR, refused_flash)
 	color.a *= alpha
-	var radius := NO_SHOOT_RADIUS * (1.0 + 0.04 * refused_flash * sin(time * 50.0))
+	var radius := no_shoot_radius * (1.0 + 0.04 * refused_flash * sin(time * 50.0))
 	var step := TAU / ZONE_DASHES
 	for i in ZONE_DASHES:
 		var a := i * step + time * ZONE_SPIN

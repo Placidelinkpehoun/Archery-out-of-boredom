@@ -32,6 +32,8 @@ var playing := false
 # Pause : le jeu est figé et les clics traversent la fenêtre, sauf sur le HUD.
 var paused := false
 var score := 0
+# Mode oiseaux : en vol (traversent l'écran) ou immobiles (apparaissent sur place).
+var birds_moving := true
 var score_tween: Tween
 var score_hue := randf()
 
@@ -192,11 +194,14 @@ func update_mouse_passthrough() -> void:
 
 func start_bird_mode() -> void:
 	start_game()
+	birds_moving = true
 	spawn_bird()
 
 
 func start_static_bird_mode() -> void:
-	pass
+	start_game()
+	birds_moving = false
+	spawn_bird()
 
 
 func start_ballon_mode() -> void:
@@ -210,7 +215,10 @@ func spawn_bird() -> void:
 	bird.process_mode = Node.PROCESS_MODE_PAUSABLE
 	add_child(bird)
 	move_child(bird, 0) # derrière l'arc, l'aperçu et les flèches
-	bird.fly(get_viewport_rect(), last_bird_position, has_last_bird)
+	if birds_moving:
+		bird.fly(get_viewport_rect(), last_bird_position, has_last_bird)
+	else:
+		bird.appear(get_viewport_rect(), last_bird_position, has_last_bird)
 	bird.hit.connect(_on_bird_hit)
 	bird.hit.connect(_on_bird_gone)
 	bird.escaped.connect(_on_bird_gone)
