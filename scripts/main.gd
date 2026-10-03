@@ -1,7 +1,5 @@
 extends Node2D
 
-@export var bird_spawn : bool = true
-
 const ARROW_SCENE := preload("res://scenes/arrow.tscn")
 const BIRD_SCENE := preload("res://scenes/bird.tscn")
 # Pause entre la disparition d'un oiseau et l'arrivée du suivant.
@@ -13,6 +11,7 @@ const MIN_POWER := 0.08
 
 @onready var bow: Node2D = $Bow
 @onready var trajectory_preview: Node2D = $TrajectoryPreview
+@onready var mode_menu: CanvasLayer = $ModeMenu
 
 var aiming := false
 var anchor := Vector2.ZERO
@@ -30,8 +29,11 @@ func _ready() -> void:
 	get_viewport().transparent_bg = true
 	bow.visible = false
 	trajectory_preview.visible = false
-	if bird_spawn:
-		spawn_bird()
+
+	# Le jeu démarre sur le menu : rien n'apparaît tant qu'un mode n'est pas choisi.
+	mode_menu.bird_mode_chosen.connect(start_bird_mode)
+	mode_menu.obstacle_mode_chosen.connect(start_obstacle_mode)
+	mode_menu.open()
 
 
 func _unhandled_input(event: InputEvent) -> void:
@@ -104,6 +106,15 @@ func release() -> void:
 
 func launch_velocity() -> Vector2:
 	return direction * lerpf(Arrow.MIN_SPEED, Arrow.MAX_SPEED, power)
+
+
+func start_bird_mode() -> void:
+	mode_menu.close()
+	spawn_bird()
+
+
+func start_obstacle_mode() -> void:
+	pass # mode pas encore créé : le menu reste ouvert
 
 
 func spawn_bird() -> void:
