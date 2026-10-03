@@ -32,7 +32,8 @@ func _ready() -> void:
 
 	# Le jeu démarre sur le menu : rien n'apparaît tant qu'un mode n'est pas choisi.
 	mode_menu.bird_mode_chosen.connect(start_bird_mode)
-	mode_menu.obstacle_mode_chosen.connect(start_obstacle_mode)
+	mode_menu.static_bird_mode_chosen.connect(start_static_bird_mode)
+	mode_menu.ballon_mode_chosen.connect(start_ballon_mode)
 	mode_menu.open()
 
 
@@ -113,7 +114,11 @@ func start_bird_mode() -> void:
 	spawn_bird()
 
 
-func start_obstacle_mode() -> void:
+func start_static_bird_mode() -> void:
+	pass
+
+
+func start_ballon_mode() -> void:
 	pass # mode pas encore créé : le menu reste ouvert
 
 
