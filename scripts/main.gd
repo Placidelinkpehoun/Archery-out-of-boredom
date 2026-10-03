@@ -16,11 +16,24 @@ const MIN_POWER := 0.08
 @onready var hud_box: Control = $HUD/MarginContainer
 @onready var play_button: Button = $HUD/MarginContainer/HBoxContainer/PlayButton
 @onready var menu_button: Button = $HUD/MarginContainer/HBoxContainer/MenuButton
+@onready var score_label: Label = $HUD/MarginContainer/HBoxContainer/ScoreLabel
+
+# Effet du compteur quand on marque : grossit puis revient à sa taille.
+const SCORE_POP_SCALE := 4
+const SCORE_POP_TIME := 0.25
+# Couleur du compteur : seule la teinte change (Saturation 50 %, Valeur 100 %).
+const SCORE_SATURATION := 0.5
+const SCORE_VALUE := 1.0
+# Pas de teinte = nombre d'or : chaque couleur tombe loin de la précédente, sans cycle visible.
+const SCORE_HUE_STEP := 0.618034
 
 # Une partie est en cours (un mode a été choisi dans le menu).
 var playing := false
 # Pause : le jeu est figé et les clics traversent la fenêtre, sauf sur le HUD.
 var paused := false
+var score := 0
+var score_tween: Tween
+var score_hue := randf()
 
 var aiming := false
 var anchor := Vector2.ZERO
@@ -137,6 +150,7 @@ func open_menu() -> void:
 		bird.queue_free()
 	bird = null
 	get_tree().call_group("arrows", "queue_free")
+	set_score(0)
 	hud.visible = false
 	mode_menu.open()
 
@@ -197,6 +211,7 @@ func spawn_bird() -> void:
 	add_child(bird)
 	move_child(bird, 0) # derrière l'arc, l'aperçu et les flèches
 	bird.fly(get_viewport_rect(), last_bird_position, has_last_bird)
+	bird.hit.connect(_on_bird_hit)
 	bird.hit.connect(_on_bird_gone)
 	bird.escaped.connect(_on_bird_gone)
 
@@ -206,3 +221,35 @@ func _on_bird_gone(at: Vector2) -> void:
 	has_last_bird = true
 	# false : le minuteur s'arrête pendant la pause.
 	get_tree().create_timer(RESPAWN_DELAY, false).timeout.connect(spawn_bird)
+
+
+func _on_bird_hit(_at: Vector2) -> void:
+	set_score(score + 1)
+	change_score_color()
+	pop_score()
+
+
+func set_score(value: int) -> void:
+	score = value
+	score_label.text = str(score)
+	if score == 0:
+		score_label.remove_theme_color_override("font_color") # retour au blanc
+
+
+func change_score_color() -> void:
+	# fposmod garde la teinte entre 0 et 1 (la roue des couleurs fait un tour complet).
+	score_hue = fposmod(score_hue + SCORE_HUE_STEP, 1.0)
+	score_label.add_theme_color_override("font_color", Color.from_hsv(score_hue, SCORE_SATURATION, SCORE_VALUE))
+
+
+func pop_score() -> void:
+	# Grossit vite, puis revient doucement avec un petit rebond.
+	if score_tween:
+		score_tween.kill()
+	score_label.pivot_offset = score_label.size / 2.0 # grossit depuis son centre
+	score_label.scale = Vector2.ONE
+	score_tween = create_tween()
+	score_tween.tween_property(score_label, "scale", Vector2.ONE * SCORE_POP_SCALE, SCORE_POP_TIME * 0.3) \
+		.set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
+	score_tween.tween_property(score_label, "scale", Vector2.ONE, SCORE_POP_TIME * 0.7) \
+		.set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)

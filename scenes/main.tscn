@@ -115,5 +115,17 @@ theme_override_styles/pressed = SubResource("StyleBoxTexture_g521e")
 theme_override_styles/hover = SubResource("StyleBoxTexture_eb6dy")
 text = "MENU"
 
+[node name="ScoreLabel" type="Label" parent="HUD/MarginContainer/HBoxContainer" unique_id=757398000]
+custom_minimum_size = Vector2(40, 0)
+layout_mode = 2
+size_flags_vertical = 1
+theme_override_colors/font_color = Color(1, 0.9083333, 0.5, 1)
+theme_override_constants/outline_size = 8
+theme_override_fonts/font = ExtResource("5_85g3d")
+theme_override_font_sizes/font_size = 22
+text = "0"
+horizontal_alignment = 1
+vertical_alignment = 1
+
 [node name="ModeMenu" parent="." unique_id=817404906 instance=ExtResource("4_menu")]
 visible = false
