@@ -9,6 +9,10 @@ signal ballon_mode_chosen
 @onready var static_bird_button: Button = $Root/Center/Panel/MarginContainer/VBoxContainer/Buttons/StaticBirdButton
 @onready var ballon_button: Button = $Root/Center/Panel/MarginContainer/VBoxContainer/Buttons/BallonButton
 @onready var quit_button: Button = $Root/Center/Panel/MarginContainer/VBoxContainer/QuitButton
+@onready var root: Control = $Root
+@onready var panel: Control = $Root/Center/Panel
+
+var open_tween: Tween
 
 
 func _ready() -> void:
@@ -20,6 +24,18 @@ func _ready() -> void:
 
 func open() -> void:
 	visible = true
+
+	# Apparition : fondu de l'ensemble + le panneau grossit de 0,8 à 1 avec un rebond.
+	if open_tween:
+		open_tween.kill()
+	# Le panneau grandit depuis son centre (sa taille minimale est connue même avant l'affichage).
+	panel.pivot_offset = panel.get_combined_minimum_size() / 2.0
+	panel.scale = Vector2.ONE * 0.8
+	root.modulate.a = 0.0
+	open_tween = create_tween().set_parallel()
+	open_tween.tween_property(root, "modulate:a", 1.0, 0.15)
+	open_tween.tween_property(panel, "scale", Vector2.ONE, 0.35) \
+		.set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
 
 
 func close() -> void:
