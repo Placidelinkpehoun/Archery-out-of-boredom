@@ -155,7 +155,7 @@ func set_paused(value: bool) -> void:
 	paused = value
 	get_tree().paused = value
 	cancel_aim()
-	play_button.text = "▶" if paused else "||"
+	play_button.text = "▶" if paused else "⏸"
 	update_mouse_passthrough()
 
 

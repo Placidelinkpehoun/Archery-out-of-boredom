@@ -15,7 +15,6 @@ texture_margin_left = 5.0
 texture_margin_top = 5.0
 texture_margin_right = 5.0
 texture_margin_bottom = 6.0
-modulate_color = Color(0.93, 0.93, 0.93, 1)
 
 [sub_resource type="StyleBoxTexture" id="StyleBoxTexture_3a8jl"]
 content_margin_top = 6.0
@@ -25,6 +24,7 @@ texture_margin_left = 5.0
 texture_margin_top = 5.0
 texture_margin_right = 5.0
 texture_margin_bottom = 6.0
+modulate_color = Color(1.1638972, 1.1638972, 1.1638972, 1)
 
 [sub_resource type="StyleBoxTexture" id="StyleBoxTexture_v6k37"]
 content_margin_top = 3.0
@@ -34,6 +34,7 @@ texture_margin_left = 5.0
 texture_margin_top = 5.0
 texture_margin_right = 5.0
 texture_margin_bottom = 6.0
+modulate_color = Color(1.1638972, 1.1638972, 1.1638972, 1)
 
 [sub_resource type="StyleBoxTexture" id="StyleBoxTexture_g521e"]
 content_margin_top = 3.0
@@ -43,7 +44,6 @@ texture_margin_left = 5.0
 texture_margin_top = 5.0
 texture_margin_right = 5.0
 texture_margin_bottom = 6.0
-modulate_color = Color(0.92941177, 0.92941177, 0.92941177, 1)
 
 [sub_resource type="StyleBoxTexture" id="StyleBoxTexture_aftje"]
 content_margin_top = 6.0
@@ -53,6 +53,7 @@ texture_margin_left = 5.0
 texture_margin_top = 5.0
 texture_margin_right = 5.0
 texture_margin_bottom = 6.0
+modulate_color = Color(1.1638972, 1.1638972, 1.1638972, 1)
 
 [sub_resource type="StyleBoxTexture" id="StyleBoxTexture_0omq1"]
 content_margin_top = 3.0
@@ -62,6 +63,7 @@ texture_margin_left = 5.0
 texture_margin_top = 5.0
 texture_margin_right = 5.0
 texture_margin_bottom = 6.0
+modulate_color = Color(1.1638972, 1.1638972, 1.1638972, 1)
 
 [sub_resource type="StyleBoxTexture" id="StyleBoxTexture_mdy7j"]
 content_margin_top = 3.0
@@ -71,7 +73,7 @@ texture_margin_left = 5.0
 texture_margin_top = 5.0
 texture_margin_right = 5.0
 texture_margin_bottom = 6.0
-modulate_color = Color(0.93, 0.3069, 0.3069, 1)
+modulate_color = Color(1, 0.32941177, 0.32941177, 1)
 
 [sub_resource type="StyleBoxTexture" id="StyleBoxTexture_axsyu"]
 content_margin_top = 6.0
@@ -81,7 +83,7 @@ texture_margin_left = 5.0
 texture_margin_top = 5.0
 texture_margin_right = 5.0
 texture_margin_bottom = 6.0
-modulate_color = Color(1, 0.33, 0.33, 1)
+modulate_color = Color(1.1638972, 0.38981077, 0.38981077, 1)
 
 [sub_resource type="StyleBoxTexture" id="StyleBoxTexture_7d7iv"]
 content_margin_top = 3.0
@@ -91,7 +93,7 @@ texture_margin_left = 5.0
 texture_margin_top = 5.0
 texture_margin_right = 5.0
 texture_margin_bottom = 6.0
-modulate_color = Color(1, 0.33, 0.33, 1)
+modulate_color = Color(1.1638972, 0.38981077, 0.38981077, 1)
 
 [node name="ModeMenu" type="CanvasLayer" unique_id=586441896]
 process_mode = 3
@@ -153,7 +155,7 @@ theme_override_constants/separation = 9
 [node name="Title" type="Label" parent="Root/Center/Panel/MarginContainer/VBoxContainer" unique_id=428906146]
 layout_mode = 2
 size_flags_horizontal = 4
-theme_override_colors/font_color = Color(0.72, 0.57312, 0.23040001, 1)
+theme_override_colors/font_color = Color(0.88, 0.72951996, 0.3784, 1)
 theme_override_constants/outline_size = 6
 theme_override_fonts/font = ExtResource("2_v6k37")
 theme_override_font_sizes/font_size = 22
